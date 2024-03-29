@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="../resources/js/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<button data-role="xhr">XHR</button>
+<button data-role="ajax">AJAX</button>
+<button data-role="fetch">FETCH</button>
+<button onclick="innerbody.innerHTML='';">Clear</button>
+
+<form id="testForm" action="formDataProcess.do" method="post" enctype="application/x-www-form-urlencoded">
+	<input type="text" name="param1" placeholder="param1"/>
+	<input type="text" name="param2" placeholder="param2"/>
+	<button type="submit">동기전송</button>
+</form>
+
+<span id="loadingarea" style="display: none;">
+    <img src="../resources/images/loading.gif"/>
+</span>
+<div id="innerbody">
+
+</div>
+<script>
+    let fnOwner = {
+        fn_xhr : function(){
+        	let xhr = new XMLHttpRequest(); // UNSENT
+        	xhr.onreadystatechange = (event)=>{
+//         		let xhr = event.target;
+        		if(xhr.readyState==XMLHttpRequest.DONE){
+        			if(xhr.status == 200)
+        				innerbody.innerHTML = xhr.responseText;
+        		}
+        	};
+        	xhr.open(testForm.method, testForm.action); // OPENED
+        	xhr.setRequestHeader("Content-Type", testForm.enctype);
+        	xhr.setRequestHeader("Accept", "text/html");
+        	let formData = new FormData(testForm);
+        	let body = new URLSearchParams(formData);
+        	xhr.send(body); // Header-receive-->loading-->done
+        },
+        fn_ajax : function(){
+        	let body = $(testForm).serialize();
+        	$.ajax({
+        		url:testForm.action,
+        		method:testForm.method,
+        		dataType:"html",
+        		data:body,
+        		success:function(html){
+        			innerbody.innerHTML = html;
+        		}
+        	});
+        },
+        fn_fetch : function(){
+        	let formData = new FormData(testForm);
+        	let body = new URLSearchParams(formData);
+        	fetch(testForm.action, {
+        		method:testForm.method,
+        		headers:{
+        			"Content-Type":testForm.enctype
+        		},
+        		body:body
+        	}).then(resp=>{
+        		if(resp.ok){
+        			return resp.text();
+        		}
+        	}).then(html=>innerbody.innerHTML=html);
+        }
+    }
+   
+
+    document.querySelectorAll("[data-role]").forEach((el, idx)=>{
+        el.addEventListener("click", (event)=>{
+            // console.log(event.target.dataset.role);
+            // console.log(event.target.dataset['role']);
+            let role = event.target.dataset['role'];
+            fnOwner[`fn_${role}`]();
+        });
+    });
+    
+</script>
+</body>
+</html>
+
+
+
+

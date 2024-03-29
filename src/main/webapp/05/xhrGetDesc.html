@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="../resources/js/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<button data-role="xhr">XMR</button>
+<button data-role="ajax">AJAX</button>
+<button data-role="fetch">FETCH</button>
+<button onclick="innerbody.innerHTML='';">Clear</button>
+<span id="loadingarea" style="display: none;">
+    <img src="../resources/images/loading.gif"/>
+</span>
+<div id="innerbody">
+
+</div>
+<script>
+	let settings = {
+    	url:"../02/standard.jsp",
+    	method:"GET",
+    	dataType:"html", // request Accept header
+    	beforeSend:function(){
+    		 loadingarea.style.display = "block";
+    	},
+    	success:function(resp){
+    		innerbody.innerHTML = resp;  
+    	},
+    	error:function(jqXHR, textStatus, err){
+    		innerbody.innerHTML = jqXHR.responseText;
+    	}, 
+    	complete:function(){
+    		loadingarea.style.display = "none";  
+    	}
+    };
+    let fnOwner = {
+        fn_xhr : function(){
+            console.log("XMLHttpRequest case");
+             // 1. XMLHttpRequest case
+            // request line : URL, method
+            // request header : name/value
+            // request body(only post) : parameter(form-data) 
+            // 1) XMLHttpRequest 객체 생성
+            let xhr = new XMLHttpRequest();
+            // UNSENT -> OPENED -> HEADER-RECEIVE -> LOADING -> DONE
+            xhr.onreadystatechange = function(event){
+                if(this.readyState < XMLHttpRequest.DONE){
+                   	settings.beforeSend();
+                }else{
+                    if(this.status == 200){
+                        settings.success(this.responseText);
+                    }else{
+                        settings.error(this, this.status, `상태코드 ${this.status}에러`);
+                    }   
+                    settings.complete();                 
+                }
+            };
+            // 2) request line 결정 : open
+            xhr.open(settings.method, settings.url );
+            // 3) request header... : setRequestHeader
+            xhr.setRequestHeader("accept", "text/html");
+            // 4) request body : send
+            xhr.send();
+        },
+        fn_ajax : function(){
+            console.log("ajax case");
+            $.ajax(settings);
+        },
+        fn_fetch : function(){
+            console.log("fetch case");
+            let fetchPromise = fetch(settings.url, {
+					            	method:settings.method,
+					            	headers:{
+					            		"accept":"text/html"
+					            	}
+					            });
+            settings.beforeSend();
+            fetchPromise.then(resp=>{
+            	console.log(resp);
+            	if(resp.ok){
+            		return resp.text();
+//             		resp.json()
+            	}else{
+            		throw new Error(`상태코드 ${resp.status} 에러`, {cause:resp});
+            	}
+            }).then(text=>{
+            	settings.success(text);
+            }).catch(err=>{
+            	console.log(err.cause);
+            	let resp = err.cause;
+            	resp.text().then(ep=>{
+            		settings.error({responseText:ep});
+            	});
+            }).finally(()=>{
+            	settings.complete();
+            });
+        }
+    }
+   
+
+    // 2. $.ajax case
+    // 3. fetch case
+    document.querySelectorAll("[data-role]").forEach((el, idx)=>{
+        el.addEventListener("click", (event)=>{
+            // console.log(event.target.dataset.role);
+            // console.log(event.target.dataset['role']);
+            let role = event.target.dataset['role'];
+            fnOwner[`fn_${role}`]();
+        });
+    });
+    
+    let samplePromise = new Promise((resolve, reject)=>{
+        setTimeout(() => {
+        	let tmpNum = Math.random();
+            if(tmpNum>0.5){
+                resolve(`생성된 난수 : ${tmpNum}`);
+            }else{
+                reject(new Error(`생성된 난수 : ${tmpNum}`));
+            }
+		}, 3000);
+    });
+    samplePromise.then(msg=>console.log(msg))
+                .catch(err=>console.error(err));
+    console.log("이 메시지가 언제 출력될까?");            
+</script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<p>
+	<input type="text" id="propName" placeholder="프로퍼티 이름"/>
+	<input type="text" id="propValue" placeholder="프로퍼티 값"/>
+	<button id="addProperty">프로퍼티 추가</button>
+</p>
+<script>
+	
+	let obj = {
+		prop1:"value1",
+		"prop2":"value2",
+		["prop4"]:"value4"
+	};
+	let array = ['a', 'b', 'c'];
+	
+	const printObject = (targetObj)=>{
+		console.log("--------------------------------");
+		for(let n in targetObj) console.log(n, targetObj[n]);
+		console.log("--------------------------------");
+	};
+	
+	const printArray1 = (targetArray)=>{
+		for(let i=0; i<targetArray.length; i++){
+			console.log(i, targetArray[i]);
+		}
+	}
+	
+	const printArray2 = (targetArray)=>{
+		for(let element of targetArray) console.log(element);
+	}
+	
+	addProperty.addEventListener("click", ()=>{
+		let name = propName.value;
+		let value = propValue.value;
+		if(!( name in obj )){
+			obj[name] = value;
+			propName.value="";
+			propValue.value="";
+			printObject(obj);
+		}
+	});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

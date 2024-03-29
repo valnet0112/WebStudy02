@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<style type="text/css">
+	span{
+		background-color: silver;
+		border: 1px solid black;
+		margin: 5px 10px 5px 10px;
+	}
+	div{
+		border: 1px solid black;
+		padding: 5px 10px 5px 10px;
+	}
+</style>
+<script type="text/javascript" src="../resources/js/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div id="div1">
+	<span id="span1">SPAN1</span>
+	<span id="span2">SPAN2</span>
+</div>
+<div id="div2">
+	<span id="span3">SPAN3</span>
+	<span id="span4">SPAN4</span>
+</div>
+<button id="clickBtn">BUTTON</button>
+<script>
+	let $firstDiv = $("body").find("div:first");
+	$(clickBtn).on("click", ()=>{
+		console.log($firstDiv.html());
+	});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
